@@ -5,9 +5,9 @@ import java.util.Objects;
 public class ExchangeRate {
 
 	private String currency;
-	private long rate;
+	private float rate;
 
-	public ExchangeRate(String currency, long rate) {
+	public ExchangeRate(String currency, float rate) {
 		this.currency = currency;
 		this.rate = rate;
 	}
@@ -20,11 +20,11 @@ public class ExchangeRate {
 		this.currency = currency;
 	}
 
-	public long getRate() {
+	public float getRate() {
 		return rate;
 	}
 
-	public void setRate(long rate) {
+	public void setRate(float rate) {
 		this.rate = rate;
 	}
 
