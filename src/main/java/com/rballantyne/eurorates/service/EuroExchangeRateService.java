@@ -1,5 +1,6 @@
 package com.rballantyne.eurorates.service;
 
+import java.io.IOException;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -18,7 +19,7 @@ public class EuroExchangeRateService {
 	List<ReferenceDay> exchangeRateData;
 
 	@PostConstruct
-	private void initialise() {
+	private void initialise() throws IOException {
 
 		exchangeRateData = dataReaderService.loadData();
 	}
