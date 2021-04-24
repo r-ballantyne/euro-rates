@@ -1,12 +1,15 @@
 package com.rballantyne.eurorates.service;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Scanner;
+import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,29 +30,45 @@ public class DataReaderService {
 
 	public List<ReferenceDay> loadData() throws IOException {
 
-		return readFromCsv();
-
-	}
-
-	private List<ReferenceDay> readFromCsv() throws IOException {
-
 		List<ReferenceDay> data = new ArrayList<>();
 
-		try (Scanner scanner = new Scanner((historicalDataFile.getInputStream()));) {
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(historicalDataFile.getInputStream()));) {
 
-			List<String> currencies = readCurrencies(scanner.nextLine());
+			List<String> currencies = readCurrencies(br.readLine());
 
-			while (scanner.hasNextLine()) {
+			logger.info("Started data read...");
 
-				data.add(readDataForDay(scanner.nextLine(), currencies));
+			data = br.lines().parallel().map(line -> mapToReferenceDay.apply(line, currencies))
+					.collect(Collectors.toList());
 
-			}
-
+			logger.info("Read {} lines of data", data.size());
 		}
-
 		return data;
-
 	}
+
+	private BiFunction<String, List<String>, ReferenceDay> mapToReferenceDay = (line, currencies) -> {
+
+		LocalDate date;
+		List<ExchangeRate> exchangeRates = new ArrayList<>();
+
+		try (Scanner rowScanner = new Scanner(line)) {
+			rowScanner.useDelimiter(",");
+			date = LocalDate.parse(rowScanner.next(), DateTimeFormatter.ISO_LOCAL_DATE);
+			int i = 0;
+
+			while (rowScanner.hasNext()) {
+				try {
+					exchangeRates.add(new ExchangeRate(currencies.get(i), Float.parseFloat(rowScanner.next())));
+
+				} catch (NumberFormatException e) {
+					logger.debug("No valid currency value found for currency {}", currencies.get(i));
+
+				}
+				i++;
+			}
+		}
+		return new ReferenceDay(date, exchangeRates);
+	};
 
 	private List<String> readCurrencies(String headerRow) {
 
@@ -68,33 +87,4 @@ public class DataReaderService {
 
 		return currencies;
 	}
-
-	private ReferenceDay readDataForDay(String line, List<String> currencies) {
-
-		List<ExchangeRate> exchangeRates = new ArrayList<>();
-		LocalDate date;
-
-		try (Scanner rowScanner = new Scanner(line)) {
-			rowScanner.useDelimiter(",");
-
-			date = LocalDate.parse(rowScanner.next(), DateTimeFormatter.ISO_LOCAL_DATE);
-			int i = 0;
-
-			while (rowScanner.hasNext()) {
-				try {
-					exchangeRates.add(new ExchangeRate(currencies.get(i), Float.parseFloat(rowScanner.next())));
-
-				} catch (NumberFormatException e) {
-
-					logger.debug("No valid currency value found for currency {}", currencies.get(i));
-				}
-
-				i++;
-			}
-		}
-
-		return new ReferenceDay(date, exchangeRates);
-
-	}
-
 }
