@@ -32,25 +32,33 @@ public class EuroRatesController {
 	public ReferenceDay getReferenceDataForDay(
 			@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
 		logger.info("Received request at getReferenceDataForDay: date={}", date);
-		
+
 		try {
 			return exchangeRateService.getReferenceDataForDay(date);
-			
+
 		} catch (NoSuchElementException e) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No reference data found for " + date);
-			
+			logger.error("No reference data found for {}", date, e);
+
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
 		}
 	}
 
 	@GetMapping("/exchangeAmountOnDay")
 	public float getExchangedAmountForDay(
 			@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-			@RequestParam("source") String sourceCurrency, @RequestParam("target") String targetCurrency) {
+			@RequestParam("source") String sourceCurrency, @RequestParam("target") String targetCurrency,
+			@RequestParam("amount") float amount) {
+		logger.info(
+				"Received request at getExchangedAmountForDay: date={}, sourceCurrency={}, targetCurrency={}, amount={}",
+				date, sourceCurrency, targetCurrency, amount);
+		try {
+			return exchangeRateService.exchangeAmountOnDay(date, sourceCurrency, targetCurrency, amount);
 
-		logger.info("Received request at getExchangedAmountForDay: date={}, sourceCurrency={}, targetCurrency={}", date,
-				sourceCurrency, targetCurrency);
+		} catch (NoSuchElementException e) {
+			logger.error("Missing data for {}", date, e);
 
-		return exchangeRateService.exchangeAmountOnDay(date, sourceCurrency, targetCurrency);
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+		}
 	}
 
 	@GetMapping("/highestExchangeRate")
