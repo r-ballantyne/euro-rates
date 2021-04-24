@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Scanner;
 
 import org.slf4j.Logger;
@@ -40,7 +41,7 @@ public class DataReaderService {
 
 			while (scanner.hasNextLine()) {
 
-				readDataForDay(scanner.nextLine(), currencies);
+				data.add(readDataForDay(scanner.nextLine(), currencies));
 
 			}
 
@@ -80,9 +81,14 @@ public class DataReaderService {
 			int i = 0;
 
 			while (rowScanner.hasNext()) {
+				try {
+					exchangeRates.add(new ExchangeRate(currencies.get(i), Float.parseFloat(rowScanner.next())));
 
-				// should be able to use scanner.parseLong
-				exchangeRates.add(new ExchangeRate(currencies.get(i), Float.parseFloat(rowScanner.next())));
+				} catch (NumberFormatException e) {
+
+					logger.debug("No valid currency value found for currency {}", currencies.get(i));
+				}
+
 				i++;
 			}
 		}
