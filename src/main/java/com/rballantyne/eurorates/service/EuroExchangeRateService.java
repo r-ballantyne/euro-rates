@@ -26,8 +26,7 @@ public class EuroExchangeRateService {
 
 	public ReferenceDay getReferenceDataForDay(LocalDate date) {
 
-		return null;
-
+		return exchangeRateData.stream().filter(day -> day.getDate().equals(date)).findFirst().orElseThrow();
 	}
 
 	public float exchangeAmountOnDay(LocalDate date, String sourceCurrency, String targetCurrency) {

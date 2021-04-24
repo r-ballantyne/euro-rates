@@ -1,17 +1,20 @@
 package com.rballantyne.eurorates.controller;
 
 import java.time.LocalDate;
+import java.util.NoSuchElementException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
-import com.rballantyne.eurorates.model.ExchangeRate;
 import com.rballantyne.eurorates.model.ReferenceDay;
 import com.rballantyne.eurorates.service.EuroExchangeRateService;
 
@@ -25,12 +28,18 @@ public class EuroRatesController {
 	private static final Logger logger = LoggerFactory.getLogger(EuroRatesController.class);
 
 	@GetMapping("/referenceDataForDay")
+	@ResponseBody
 	public ReferenceDay getReferenceDataForDay(
 			@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-
 		logger.info("Received request at getReferenceDataForDay: date={}", date);
-
-		return exchangeRateService.getReferenceDataForDay(date);
+		
+		try {
+			return exchangeRateService.getReferenceDataForDay(date);
+			
+		} catch (NoSuchElementException e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No reference data found for " + date);
+			
+		}
 	}
 
 	@GetMapping("/exchangeAmountOnDay")
