@@ -28,7 +28,7 @@ public class EuroExchangeRateService {
 
 	@PostConstruct
 	private void initialise() throws IOException {
-		
+
 		exchangeRateData = dataReaderService.loadData();
 	}
 
@@ -42,9 +42,12 @@ public class EuroExchangeRateService {
 
 		ReferenceDay refData = getReferenceDataForDay(date);
 
-		// TODO refine exceptions
-		ExchangeRate sourceRate = getExchangeRateForCurrencyFromDay(sourceCurrency, refData).orElseThrow();
-		ExchangeRate targetRate = getExchangeRateForCurrencyFromDay(targetCurrency, refData).orElseThrow();
+		ExchangeRate sourceRate = getExchangeRateForCurrencyFromDay(sourceCurrency, refData)
+				.orElseThrow(() -> new NoSuchElementException(
+						"No exchange rate data found for currency " + sourceCurrency + " on " + date));
+		ExchangeRate targetRate = getExchangeRateForCurrencyFromDay(targetCurrency, refData)
+				.orElseThrow(() -> new NoSuchElementException(
+						"No exchange rate data found for currency " + targetCurrency + " on " + date));
 
 		float exchangedAmount = (amount / sourceRate.getRate()) * targetRate.getRate();
 
@@ -83,7 +86,7 @@ public class EuroExchangeRateService {
 	}
 
 	public Optional<ExchangeRate> getExchangeRateForCurrencyFromDay(String currency, ReferenceDay referenceDay) {
-	
+
 		return referenceDay.getExchangeRates().stream().filter(er -> er.getCurrency().equals(currency)).findFirst();
 	}
 

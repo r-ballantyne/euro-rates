@@ -28,6 +28,8 @@ public class EuroRatesController {
 
 	private static final Logger logger = LoggerFactory.getLogger(EuroRatesController.class);
 
+	// TODO validation for currency and amount
+
 	@GetMapping("/referenceDataForDay")
 	@ResponseBody
 	public ReferenceDay getReferenceDataForDay(
@@ -87,10 +89,9 @@ public class EuroRatesController {
 
 		return formatReturnRate(exchangeRateService.getAverageExchangeRateForPeriod(startDate, endDate, currency));
 	}
-	
-	
+
 	private String formatReturnRate(double rate) {
 		return new DecimalFormat("0.0000").format(rate);
 	}
-	
+
 }
