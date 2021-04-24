@@ -72,8 +72,7 @@ public class EuroRatesController {
 				"Received request at getCurrencyHighestExchangeRateForPeriod: startDate={}, endDate={}, currency={}",
 				startDate, endDate, currency);
 
-		return new DecimalFormat("0.0000")
-				.format(exchangeRateService.getHighestExchangeRateForPeriod(startDate, endDate, currency));
+		return formatReturnRate(exchangeRateService.getHighestExchangeRateForPeriod(startDate, endDate, currency));
 	}
 
 	@GetMapping("/averageExchangeRate")
@@ -86,7 +85,12 @@ public class EuroRatesController {
 				"Received request at getCurrencyAverageExchangeRateForPeriod: startDate={}, endDate={}, currency={}",
 				startDate, endDate, currency);
 
-		return new DecimalFormat("0.0000")
-				.format(exchangeRateService.getAverageExchangeRateForPeriod(startDate, endDate, currency));
+		return formatReturnRate(exchangeRateService.getAverageExchangeRateForPeriod(startDate, endDate, currency));
 	}
+	
+	
+	private String formatReturnRate(double rate) {
+		return new DecimalFormat("0.0000").format(rate);
+	}
+	
 }

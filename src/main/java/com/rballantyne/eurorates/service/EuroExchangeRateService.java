@@ -2,11 +2,9 @@ package com.rballantyne.eurorates.service;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.function.BiFunction;
-import java.util.function.Predicate;
+import java.util.Optional;
 
 import javax.annotation.PostConstruct;
 
@@ -30,6 +28,7 @@ public class EuroExchangeRateService {
 
 	@PostConstruct
 	private void initialise() throws IOException {
+		
 		exchangeRateData = dataReaderService.loadData();
 	}
 
@@ -39,16 +38,13 @@ public class EuroExchangeRateService {
 				.orElseThrow(() -> new NoSuchElementException("No reference data found for " + date));
 	}
 
-	private BiFunction<String, ReferenceDay, ExchangeRate> exchangeRateForCurrency = (currency, refDay) -> refDay
-			.getExchangeRates().stream().filter(er -> er.getCurrency().equals(currency)).findFirst()
-			.orElseThrow(() -> new NoSuchElementException("No exchange rate data found for currency " + currency));
-
 	public float exchangeAmountOnDay(LocalDate date, String sourceCurrency, String targetCurrency, float amount) {
 
 		ReferenceDay refData = getReferenceDataForDay(date);
 
-		ExchangeRate sourceRate = exchangeRateForCurrency.apply(sourceCurrency, refData);
-		ExchangeRate targetRate = exchangeRateForCurrency.apply(targetCurrency, refData);
+		// TODO refine exceptions
+		ExchangeRate sourceRate = getExchangeRateForCurrencyFromDay(sourceCurrency, refData).orElseThrow();
+		ExchangeRate targetRate = getExchangeRateForCurrencyFromDay(targetCurrency, refData).orElseThrow();
 
 		float exchangedAmount = (amount / sourceRate.getRate()) * targetRate.getRate();
 
@@ -60,17 +56,16 @@ public class EuroExchangeRateService {
 
 	public double getHighestExchangeRateForPeriod(LocalDate startDate, LocalDate endDate, String currency) {
 
-		double highestEr = exchangeRateData.parallelStream()
+		double highestRate = exchangeRateData.parallelStream()
 				.filter(refDay -> refDay.getDate().isAfter(startDate.minusDays(1))
 						&& refDay.getDate().isBefore(endDate.plusDays(1)))
-				.map(refDay -> exchangeRateForCurrency.apply(currency, refDay)).mapToDouble(ExchangeRate::getRate).max()
-				.orElse(Double.NaN);
+				.map(refDay -> getExchangeRateForCurrencyFromDay(currency, refDay)).flatMap(Optional::stream)
+				.mapToDouble(ExchangeRate::getRate).max().orElse(Double.NaN);
 
 		logger.info("Highest exchange rate found for period {} -> {} for currency {}: {}", startDate, endDate, currency,
-				highestEr);
+				highestRate);
 
-		return highestEr;
-
+		return highestRate;
 	}
 
 	public double getAverageExchangeRateForPeriod(LocalDate startDate, LocalDate endDate, String currency) {
@@ -78,13 +73,18 @@ public class EuroExchangeRateService {
 		double avgRate = exchangeRateData.parallelStream()
 				.filter(refDay -> refDay.getDate().isAfter(startDate.minusDays(1))
 						&& refDay.getDate().isBefore(endDate.plusDays(1)))
-				.map(refDay -> exchangeRateForCurrency.apply(currency, refDay)).mapToDouble(ExchangeRate::getRate)
-				.average().orElse(Double.NaN);
+				.map(refDay -> getExchangeRateForCurrencyFromDay(currency, refDay)).flatMap(Optional::stream)
+				.mapToDouble(ExchangeRate::getRate).average().orElse(Double.NaN);
 
 		logger.info("Average exchange rate calculated for period {} -> {} for currency {}: {}", startDate, endDate,
 				currency, avgRate);
 
 		return avgRate;
+	}
+
+	public Optional<ExchangeRate> getExchangeRateForCurrencyFromDay(String currency, ReferenceDay referenceDay) {
+	
+		return referenceDay.getExchangeRates().stream().filter(er -> er.getCurrency().equals(currency)).findFirst();
 	}
 
 }
