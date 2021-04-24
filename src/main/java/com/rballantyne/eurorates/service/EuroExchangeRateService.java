@@ -2,6 +2,7 @@ package com.rballantyne.eurorates.service;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.function.BiFunction;
@@ -31,6 +32,9 @@ public class EuroExchangeRateService {
 		exchangeRateData = dataReaderService.loadData();
 	}
 
+	Comparator<ExchangeRate> byRate = (ExchangeRate er1, ExchangeRate er2) -> Float.compare(er1.getRate(),
+			er2.getRate());
+
 	public ReferenceDay getReferenceDataForDay(LocalDate date) {
 
 		return exchangeRateData.stream().filter(day -> day.getDate().equals(date)).findFirst()
@@ -58,7 +62,19 @@ public class EuroExchangeRateService {
 
 	public float getHighestExchangeRateForPeriod(LocalDate startDate, LocalDate endDate, String currency) {
 
-		return 0f;
+		logger.info("Starting search for highest exhange rate");
+		
+		ExchangeRate highestEr = exchangeRateData.parallelStream()
+				.filter(refDay -> refDay.getDate().isAfter(startDate.minusDays(1))
+						&& refDay.getDate().isBefore(endDate.plusDays(1)))
+				.map(refDay -> exchangeRateForCurrency.apply(currency, refDay)).max(byRate)
+				.orElseThrow(() -> new NoSuchElementException("No exchange rate data found for currency " + currency
+						+ " for period " + startDate + " -> " + endDate));
+
+		logger.info("Highest exchange rate found for period {} -> {} for currency {}: {}", startDate, endDate, currency,
+				highestEr);
+
+		return highestEr.getRate();
 
 	}
 
