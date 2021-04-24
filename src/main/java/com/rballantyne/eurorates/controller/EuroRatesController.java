@@ -1,5 +1,6 @@
 package com.rballantyne.eurorates.controller;
 
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.NoSuchElementException;
 
@@ -62,7 +63,7 @@ public class EuroRatesController {
 	}
 
 	@GetMapping("/highestExchangeRate")
-	public float getCurrencyHighestExchangeRateForPeriod(
+	public String getCurrencyHighestExchangeRateForPeriod(
 			@RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
 			@RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
 			@RequestParam("currency") String currency) {
@@ -71,11 +72,12 @@ public class EuroRatesController {
 				"Received request at getCurrencyHighestExchangeRateForPeriod: startDate={}, endDate={}, currency={}",
 				startDate, endDate, currency);
 
-		return exchangeRateService.getHighestExchangeRateForPeriod(startDate, endDate, currency);
+		return new DecimalFormat("0.0000")
+				.format(exchangeRateService.getHighestExchangeRateForPeriod(startDate, endDate, currency));
 	}
 
 	@GetMapping("/averageExchangeRate")
-	public float getCurrencyAverageExchangeRateForPeriod(
+	public String getCurrencyAverageExchangeRateForPeriod(
 			@RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
 			@RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
 			@RequestParam("currency") String currency) {
@@ -84,6 +86,7 @@ public class EuroRatesController {
 				"Received request at getCurrencyAverageExchangeRateForPeriod: startDate={}, endDate={}, currency={}",
 				startDate, endDate, currency);
 
-		return exchangeRateService.getAverageExchangeRateForPeriod(startDate, endDate, currency);
+		return new DecimalFormat("0.0000")
+				.format(exchangeRateService.getAverageExchangeRateForPeriod(startDate, endDate, currency));
 	}
 }
