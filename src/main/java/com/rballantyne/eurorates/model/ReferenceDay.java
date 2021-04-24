@@ -6,8 +6,8 @@ import java.util.Objects;
 
 public class ReferenceDay {
 
-	private LocalDate date;
-	private List<ExchangeRate> exchangeRates;
+	private final LocalDate date;
+	private final List<ExchangeRate> exchangeRates;
 
 	public ReferenceDay(LocalDate date, List<ExchangeRate> exchangeRates) {
 		this.date = date;
@@ -18,19 +18,11 @@ public class ReferenceDay {
 		return date;
 	}
 
-	public void setDate(LocalDate date) {
-		this.date = date;
-	}
-
 	public List<ExchangeRate> getExchangeRates() {
 		return exchangeRates;
 	}
 
-	public void setExchangeRates(List<ExchangeRate> exchangeRates) {
-		this.exchangeRates = exchangeRates;
-	}
-
-	@Override
+	@Override	
 	public int hashCode() {
 		return Objects.hash(date, exchangeRates);
 	}

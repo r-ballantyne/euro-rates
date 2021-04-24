@@ -4,8 +4,8 @@ import java.util.Objects;
 
 public class ExchangeRate {
 
-	private String currency;
-	private float rate;
+	private final String currency;
+	private final float rate;
 
 	public ExchangeRate(String currency, float rate) {
 		this.currency = currency;
@@ -16,16 +16,8 @@ public class ExchangeRate {
 		return currency;
 	}
 
-	public void setCurrency(String currency) {
-		this.currency = currency;
-	}
-
 	public float getRate() {
 		return rate;
-	}
-
-	public void setRate(float rate) {
-		this.rate = rate;
 	}
 
 	@Override
