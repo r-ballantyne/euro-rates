@@ -97,4 +97,95 @@ class EuroExchangeRateServiceTest {
 
 	}
 
+	
+	@Test
+	void testGetHighestExchangeRateForPeriod_ReturnsHighestRate() {
+
+		BigDecimal expected1 = new BigDecimal("130.64");
+		BigDecimal expected2 = new BigDecimal("130.37");
+
+		LocalDate startDate = LocalDate.of(2021, 4, 15);
+		LocalDate endDate1 = LocalDate.of(2021, 4, 23);
+		LocalDate endDate2 = LocalDate.of(2021, 4, 19);
+
+		assertEquals(expected1, exchangeRateService.getHighestExchangeRateForPeriod(startDate, endDate1, "JPY"));
+		assertEquals(expected2, exchangeRateService.getHighestExchangeRateForPeriod(startDate, endDate2, "JPY"));
+	}
+
+	@Test
+	void testGetHighestExchangeRateForPeriod_DoesThrow_WhenMissingDataForCurrency() {
+
+		LocalDate startDate = LocalDate.of(2021, 4, 15);
+		LocalDate endDate = LocalDate.of(2021, 4, 23);
+
+		assertThrows(NoSuchElementException.class,
+				() -> exchangeRateService.getHighestExchangeRateForPeriod(startDate, endDate, "EEK"));
+		assertThrows(NoSuchElementException.class,
+				() -> exchangeRateService.getHighestExchangeRateForPeriod(startDate, endDate, "BOG"));
+	}
+
+	@Test
+	void testGetHighestExchangeRateForPeriod_DoesThrow_WhenMissingDataForPeriod() {
+
+		LocalDate startDate1 = LocalDate.of(2020, 1, 1);
+		LocalDate startDate2 = LocalDate.of(2021, 4, 24);
+
+		LocalDate endDate1 = LocalDate.of(2020, 12, 1);
+		LocalDate endDate2 = LocalDate.of(2021, 4, 14);
+		LocalDate endDate3 = LocalDate.of(2021, 4, 30);
+
+		assertThrows(NoSuchElementException.class,
+				() -> exchangeRateService.getHighestExchangeRateForPeriod(startDate1, endDate1, "USD"));
+		assertThrows(NoSuchElementException.class,
+				() -> exchangeRateService.getHighestExchangeRateForPeriod(startDate1, endDate2, "USD"));
+		assertThrows(NoSuchElementException.class,
+				() -> exchangeRateService.getHighestExchangeRateForPeriod(startDate2, endDate3, "USD"));
+	}
+	
+	@Test
+	void testGetAverageExchangeRateForPeriod_ReturnsAverageRate() {
+
+		BigDecimal expected1 = new BigDecimal("0.8660");
+		BigDecimal expected2 = new BigDecimal("0.8663");
+
+		LocalDate startDate = LocalDate.of(2021, 4, 15);
+		LocalDate endDate1 = LocalDate.of(2021, 4, 23);
+		LocalDate endDate2 = LocalDate.of(2021, 4, 19);
+
+		assertEquals(expected1, exchangeRateService.getAverageExchangeRateForPeriod(startDate, endDate1, "GBP"));
+		assertEquals(expected2, exchangeRateService.getAverageExchangeRateForPeriod(startDate, endDate2, "GBP"));
+	}
+
+	@Test
+	void testGetAverageExchangeRateForPeriod_DoesThrow_WhenMissingDataForCurrency() {
+
+		LocalDate startDate = LocalDate.of(2021, 4, 15);
+		LocalDate endDate = LocalDate.of(2021, 4, 23);
+
+		assertThrows(NoSuchElementException.class,
+				() -> exchangeRateService.getAverageExchangeRateForPeriod(startDate, endDate, "EEK"));
+		assertThrows(NoSuchElementException.class,
+				() -> exchangeRateService.getAverageExchangeRateForPeriod(startDate, endDate, "BOG"));
+	}
+
+	@Test
+	void testGetAverageExchangeRateForPeriod_DoesThrow_WhenMissingDataForPeriod() {
+
+		LocalDate startDate1 = LocalDate.of(2020, 1, 1);
+		LocalDate startDate2 = LocalDate.of(2021, 4, 24);
+
+		LocalDate endDate1 = LocalDate.of(2020, 12, 1);
+		LocalDate endDate2 = LocalDate.of(2021, 4, 14);
+		LocalDate endDate3 = LocalDate.of(2021, 4, 30);
+
+		assertThrows(NoSuchElementException.class,
+				() -> exchangeRateService.getAverageExchangeRateForPeriod(startDate1, endDate1, "USD"));
+		assertThrows(NoSuchElementException.class,
+				() -> exchangeRateService.getAverageExchangeRateForPeriod(startDate1, endDate2, "USD"));
+		assertThrows(NoSuchElementException.class,
+				() -> exchangeRateService.getAverageExchangeRateForPeriod(startDate2, endDate3, "USD"));
+	}
+	
+
+
 }

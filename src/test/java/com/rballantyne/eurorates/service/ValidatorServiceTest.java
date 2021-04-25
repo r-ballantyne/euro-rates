@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.math.BigDecimal;
 import java.security.InvalidParameterException;
+import java.time.LocalDate;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,6 +76,33 @@ class ValidatorServiceTest {
 		assertThrows(InvalidParameterException.class, () -> validatorService.validateAmount(bdTest1));
 		assertThrows(InvalidParameterException.class, () -> validatorService.validateAmount(bdTest2));
 		assertThrows(InvalidParameterException.class, () -> validatorService.validateAmount(bdTest3));
+	}
+
+	@Test
+	void testValidateDates_DoesNotThrow_WhenDatesChronological() {
+
+		LocalDate startDate = LocalDate.of(2021, 1, 1);
+		LocalDate endDate = LocalDate.of(2021, 2, 1);
+
+		assertDoesNotThrow(() -> validatorService.validateDates(startDate, endDate));
+	}
+
+	@Test
+	void testValidateDates_DoesNotThrow_WhenDatesSame() {
+
+		LocalDate startDate = LocalDate.of(2021, 1, 1);
+		LocalDate endDate = LocalDate.of(2021, 1, 1);
+
+		assertDoesNotThrow(() -> validatorService.validateDates(startDate, endDate));
+	}
+
+	@Test
+	void testValidateDates_DoesThrow_WhenDatesInWrongOrder() {
+
+		LocalDate startDate = LocalDate.of(2021, 2, 1);
+		LocalDate endDate = LocalDate.of(2021, 1, 1);
+
+		assertThrows(InvalidParameterException.class, () -> validatorService.validateDates(startDate, endDate));
 	}
 
 }
