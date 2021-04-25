@@ -68,10 +68,12 @@ public class EuroExchangeRateService {
 		return exchangedAmount;
 	}
 
-	public double getHighestExchangeRateForPeriod(LocalDate startDate, LocalDate endDate, String currency) {
+	public BigDecimal getHighestExchangeRateForPeriod(LocalDate startDate, LocalDate endDate, String currency) {
 
-		double highestRate = getStreamOfRatesForCurrencyForPeriod(startDate, endDate, currency).max()
-				.orElse(Double.NaN);
+		BigDecimal highestRate = BigDecimal
+				.valueOf(getStreamOfRatesForCurrencyForPeriod(startDate, endDate, currency).max().orElseThrow(
+						() -> new NoSuchElementException("Could not find max exchange rate (no data for currency "
+								+ currency + " for period " + startDate + " -> " + endDate + ")")));
 
 		logger.info("Highest exchange rate found for period {} -> {} for currency {}: {}", startDate, endDate, currency,
 				highestRate);
@@ -79,10 +81,13 @@ public class EuroExchangeRateService {
 		return highestRate;
 	}
 
-	public double getAverageExchangeRateForPeriod(LocalDate startDate, LocalDate endDate, String currency) {
+	public BigDecimal getAverageExchangeRateForPeriod(LocalDate startDate, LocalDate endDate, String currency) {
 
-		double avgRate = getStreamOfRatesForCurrencyForPeriod(startDate, endDate, currency).average()
-				.orElse(Double.NaN);
+		BigDecimal avgRate = BigDecimal
+				.valueOf(getStreamOfRatesForCurrencyForPeriod(startDate, endDate, currency).average().orElseThrow(
+						() -> new NoSuchElementException("Could not find average exchange rate (no data for currency "
+								+ currency + " for period " + startDate + " -> " + endDate + ")")))
+				.setScale(4, RoundingMode.HALF_UP);
 
 		logger.info("Average exchange rate calculated for period {} -> {} for currency {}: {}", startDate, endDate,
 				currency, avgRate);

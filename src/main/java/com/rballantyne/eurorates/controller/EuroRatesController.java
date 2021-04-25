@@ -65,7 +65,6 @@ public class EuroRatesController {
 			validatorService.validateCurrency(targetCurrency);
 			validatorService.validateAmount(amount);
 
-//			return 0f;
 			return exchangeRateService.exchangeAmountOnDay(date, sourceCurrency, targetCurrency, amount);
 
 		} catch (InvalidParameterException e) {
@@ -81,7 +80,7 @@ public class EuroRatesController {
 	}
 
 	@GetMapping("/highestExchangeRate")
-	public String getCurrencyHighestExchangeRateForPeriod(
+	public BigDecimal getCurrencyHighestExchangeRateForPeriod(
 			@RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
 			@RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
 			@RequestParam("currency") String currency) {
@@ -92,8 +91,9 @@ public class EuroRatesController {
 
 		try {
 			validatorService.validateCurrency(currency);
+			validatorService.validateDates(startDate, endDate);
 
-			return formatReturnRate(exchangeRateService.getHighestExchangeRateForPeriod(startDate, endDate, currency));
+			return exchangeRateService.getHighestExchangeRateForPeriod(startDate, endDate, currency);
 
 		} catch (InvalidParameterException e) {
 			logger.error("Input parameter(s) failed validation: ", e);
@@ -109,7 +109,7 @@ public class EuroRatesController {
 	}
 
 	@GetMapping("/averageExchangeRate")
-	public String getCurrencyAverageExchangeRateForPeriod(
+	public BigDecimal getCurrencyAverageExchangeRateForPeriod(
 			@RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
 			@RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
 			@RequestParam("currency") String currency) {
@@ -119,8 +119,9 @@ public class EuroRatesController {
 				startDate, endDate, currency);
 		try {
 			validatorService.validateCurrency(currency);
+			validatorService.validateDates(startDate, endDate);
 
-			return formatReturnRate(exchangeRateService.getAverageExchangeRateForPeriod(startDate, endDate, currency));
+			return exchangeRateService.getAverageExchangeRateForPeriod(startDate, endDate, currency);
 
 		} catch (InvalidParameterException e) {
 			logger.error("Input parameter(s) failed validation: ", e);
@@ -132,10 +133,6 @@ public class EuroRatesController {
 
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
 		}
-	}
-
-	private String formatReturnRate(double rate) {
-		return new DecimalFormat("0.0000").format(rate);
 	}
 
 }
