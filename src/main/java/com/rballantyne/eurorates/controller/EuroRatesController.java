@@ -1,5 +1,6 @@
 package com.rballantyne.eurorates.controller;
 
+import java.math.BigDecimal;
 import java.security.InvalidParameterException;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
@@ -50,10 +51,10 @@ public class EuroRatesController {
 	}
 
 	@GetMapping("/exchangeAmountOnDay")
-	public float getExchangedAmountForDay(
+	public BigDecimal getExchangedAmountForDay(
 			@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
 			@RequestParam("source") String sourceCurrency, @RequestParam("target") String targetCurrency,
-			@RequestParam("amount") float amount) {
+			@RequestParam("amount") BigDecimal amount) {
 		logger.info(
 				"Received request at getExchangedAmountForDay: date={}, sourceCurrency={}, targetCurrency={}, amount={}",
 				date, sourceCurrency, targetCurrency, amount);
@@ -64,6 +65,7 @@ public class EuroRatesController {
 			validatorService.validateCurrency(targetCurrency);
 			validatorService.validateAmount(amount);
 
+//			return 0f;
 			return exchangeRateService.exchangeAmountOnDay(date, sourceCurrency, targetCurrency, amount);
 
 		} catch (InvalidParameterException e) {

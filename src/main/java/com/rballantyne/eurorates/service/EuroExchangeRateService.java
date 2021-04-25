@@ -1,6 +1,8 @@
 package com.rballantyne.eurorates.service;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -45,7 +47,8 @@ public class EuroExchangeRateService {
 
 	}
 
-	public float exchangeAmountOnDay(LocalDate date, String sourceCurrency, String targetCurrency, float amount) {
+	public BigDecimal exchangeAmountOnDay(LocalDate date, String sourceCurrency, String targetCurrency,
+			BigDecimal amount) {
 
 		ReferenceDay refData = getReferenceDataForDay(date);
 
@@ -56,7 +59,8 @@ public class EuroExchangeRateService {
 				.orElseThrow(() -> new NoSuchElementException(
 						"No exchange rate data found for currency " + targetCurrency + " on " + date));
 
-		float exchangedAmount = (amount / sourceRate.getRate()) * targetRate.getRate();
+		BigDecimal exchangedAmount = (amount.divide(sourceRate.getRate(), 2, RoundingMode.HALF_UP)
+				.multiply(targetRate.getRate())).setScale(2, RoundingMode.HALF_UP);
 
 		logger.info("Exchange on date {}: {} {} converts to {} {} (RATES: {}, {})", date, amount, sourceCurrency,
 				exchangedAmount, targetCurrency, sourceRate, targetRate);
@@ -92,7 +96,7 @@ public class EuroExchangeRateService {
 				.filter(refDay -> refDay.getDate().isAfter(startDate.minusDays(1))
 						&& refDay.getDate().isBefore(endDate.plusDays(1)))
 				.map(refDay -> getExchangeRateForCurrencyFromDay(currency, refDay)).flatMap(Optional::stream)
-				.mapToDouble(ExchangeRate::getRate);
+				.mapToDouble(er -> er.getRate().doubleValue());
 	}
 
 	public Optional<ExchangeRate> getExchangeRateForCurrencyFromDay(String currency, ReferenceDay referenceDay) {

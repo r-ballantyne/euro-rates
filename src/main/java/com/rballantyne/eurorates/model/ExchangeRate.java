@@ -1,13 +1,14 @@
 package com.rballantyne.eurorates.model;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 
 public class ExchangeRate {
 
 	private final String currency;
-	private final float rate;
+	private final BigDecimal rate;
 
-	public ExchangeRate(String currency, float rate) {
+	public ExchangeRate(String currency, BigDecimal rate) {
 		this.currency = currency;
 		this.rate = rate;
 	}
@@ -16,7 +17,7 @@ public class ExchangeRate {
 		return currency;
 	}
 
-	public float getRate() {
+	public BigDecimal getRate() {
 		return rate;
 	}
 
@@ -34,7 +35,7 @@ public class ExchangeRate {
 		if (getClass() != obj.getClass())
 			return false;
 		ExchangeRate other = (ExchangeRate) obj;
-		return Objects.equals(currency, other.currency) && rate == other.rate;
+		return Objects.equals(currency, other.currency) && Objects.equals(rate, other.rate);
 	}
 
 	@Override

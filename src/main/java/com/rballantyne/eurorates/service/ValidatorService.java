@@ -1,5 +1,6 @@
 package com.rballantyne.eurorates.service;
 
+import java.math.BigDecimal;
 import java.security.InvalidParameterException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -19,18 +20,14 @@ public class ValidatorService {
 
 	}
 
-	public void validateAmount(float amount) {
-		// TODO validate precision
-		if (amount <= 0) {
+	public void validateAmount(BigDecimal amount) {
+		
+		if (amount.compareTo(BigDecimal.ZERO) < 0) {
 			throw new InvalidParameterException("Provided amount " + amount + " cannot be less than 0");
-		} else {
-			String sAmount = "" + amount;
-			
-//			String sAmount2 = Float.toString(amount);
-			int i = sAmount.indexOf(".");
-			if (sAmount.length() - i - 1 > 2) {
-				throw new InvalidParameterException("Provided amount " + amount + " cannot have precision of more than 2 demical places");
-			}
+		}
+		if (amount.scale() > 2) {
+			throw new InvalidParameterException(
+					"Provided amount " + amount + " cannot have more than 2 demical places");
 		}
 
 	}

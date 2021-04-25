@@ -3,6 +3,7 @@ package com.rballantyne.eurorates.service;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -58,7 +59,7 @@ public class DataReaderService {
 
 			while (rowScanner.hasNext()) {
 				try {
-					exchangeRates.add(new ExchangeRate(currencies.get(i), Float.parseFloat(rowScanner.next())));
+					exchangeRates.add(new ExchangeRate(currencies.get(i), new BigDecimal(rowScanner.next())));
 
 				} catch (NumberFormatException e) {
 					logger.debug("No valid currency value found for currency {}", currencies.get(i));
