@@ -22,8 +22,8 @@ public class ValidatorService {
 
 	public void validateAmount(BigDecimal amount) {
 		
-		if (amount.compareTo(BigDecimal.ZERO) < 0) {
-			throw new InvalidParameterException("Provided amount " + amount + " cannot be less than 0");
+		if (amount.compareTo(BigDecimal.ZERO) < 1) {
+			throw new InvalidParameterException("Provided amount " + amount + " cannot be 0 or less");
 		}
 		if (amount.scale() > 2) {
 			throw new InvalidParameterException(
