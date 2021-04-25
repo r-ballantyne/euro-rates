@@ -88,7 +88,7 @@ $ curl -x GET localhost:8080/api/highestExchangeRate?startDate=2000-04-23&endDat
 0.97855
 ```
 
-### Get the Avergae Exchange Rate of a Currency in a Given Period
+### Get the Average Exchange Rate of a Currency in a Given Period
 
 `localhost:8080/api/averageExchangeRate?startDate=<startDate>&endDate=<endDate>&currency=<currency>`
 
