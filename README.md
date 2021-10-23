@@ -55,7 +55,6 @@ $ curl -x GET localhost:8080/api/referenceDataForDay?date=2021-04-23
             "rate": 0.86905
         }
     ]
-}
 ```
 
 ### Convert an Amount Between Currencies on a Given Date
